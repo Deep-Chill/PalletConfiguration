@@ -1,0 +1,154 @@
+<style>
+body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: #f2f2f2;
+    padding: 2em;
+}
+#myForm {
+    background-color: #fff;
+    padding: 2em;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+}
+#myForm .inputGroup {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1em;
+}
+#myForm label {
+    display: block;
+    margin-bottom: .5em;
+    color: #333;
+}
+#myForm input[type=number] {
+    flex: 1;
+    padding: .5em;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-left: .5em;
+    font-size: 1em;
+}
+#myForm input[type=number]:first-child {
+    margin-left: 0;
+}
+#myForm input[type=submit] {
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 1em;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color .3s ease;
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+}
+#myForm input[type=submit]:hover {
+    background-color: #0056b3;
+}
+#results, #details {
+    margin-top: 2em;
+    font-size: 1.2em;
+}
+#myForm .inputGroup > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+</style>
+<form id="myForm">
+    <div class="inputGroup">
+        <div>
+            <label for="palletWidth">Pallet Width:</label>
+            <input type="number" id="palletWidth">
+        </div>
+        <div>
+            <label for="palletLength">Pallet Length:</label>
+            <input type="number" id="palletLength">
+        </div>
+        <div>
+            <label for="palletHeight">Pallet Height:</label>
+            <input type="number" id="palletHeight">
+        </div>
+    </div>
+    <hr><br>
+    <div class="inputGroup">
+        <div>
+            <label for="boxWidth">Box Width:</label>
+            <input type="number" id="boxWidth">
+        </div>
+        <div>
+            <label for="boxLength">Box Length:</label>
+            <input type="number" id="boxLength">
+        </div>
+        <div>
+            <label for="boxHeight">Box Height:</label>
+            <input type="number" id="boxHeight">
+        </div>
+    </div>
+        <hr><br>
+<div class="inputGroup">
+    <div></div>
+    <div>
+        <label for="totalBoxes">Total Number of Boxes (optional):</label>
+        <input type="number" id="totalBoxes">
+    </div>
+    <div></div>
+</div>
+    <br>
+    <input type="submit" value="Calculate">
+</form>
+<div id="results"></div>
+<div id="details"></div>
+
+<script>
+function calculateBoxes(palletDims, boxDims, totalBoxes) {
+    var boxesAlongWidth = Math.floor(palletDims[0] / boxDims[0]);
+    var boxesAlongLength = Math.floor(palletDims[1] / boxDims[1]);
+    var boxesAlongHeight = Math.floor(palletDims[2] / boxDims[2]);
+
+    var totalBoxesOnPallet = boxesAlongWidth * boxesAlongLength * boxesAlongHeight;
+
+    var numberOfPallets = totalBoxes ? Math.ceil(totalBoxes / totalBoxesOnPallet) : 0;
+
+    return {
+        totalBoxesOnPallet: totalBoxesOnPallet,
+        numberOfPallets: numberOfPallets,
+        boxesPerDim: [boxesAlongWidth, boxesAlongLength, boxesAlongHeight]
+    };
+}
+
+document.getElementById("myForm").addEventListener("submit", function(event){
+    event.preventDefault();
+
+    var palletDims = [
+        parseFloat(document.getElementById("palletWidth").value),
+        parseFloat(document.getElementById("palletLength").value),
+        parseFloat(document.getElementById("palletHeight").value)
+    ];
+    var boxDims = [
+        parseFloat(document.getElementById("boxWidth").value),
+        parseFloat(document.getElementById("boxLength").value),
+        parseFloat(document.getElementById("boxHeight").value)
+    ];
+
+    var totalBoxes = parseInt(document.getElementById("totalBoxes").value);
+
+    if (palletDims[0] < boxDims[0] || palletDims[1] < boxDims[1] || palletDims[2] < boxDims[2]) {
+        document.getElementById("results").textContent = "Error: The box is larger than the pallet in at least one dimension.";
+        document.getElementById("details").textContent = "";
+    } else {
+        var results = calculateBoxes(palletDims, boxDims, totalBoxes);
+
+        document.getElementById("results").textContent = "Total boxes per pallet: " + results.totalBoxesOnPallet;
+        document.getElementById("details").textContent = "Boxes along width: " + results.boxesPerDim[0] + ", Boxes along length: " + results.boxesPerDim[1] + ", Boxes along height: " + results.boxesPerDim[2];
+
+        if (totalBoxes) {
+            document.getElementById("details").textContent += ", Number of pallets needed: " + results.numberOfPallets;
+        }
+    }
+});
+</script>
